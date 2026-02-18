@@ -9,7 +9,7 @@ app = Flask(__name__)
 model = joblib.load("power_prediction.sav")
 
 # 🔑 Replace this with your real OpenWeather API key
-API_KEY = "feef6773a4dec2a99a50c5ae96d75c37"
+API_KEY = "4c164f075e1fa39e5d3b21cf11fcdfc6"
 
 # Dropdown cities
 CITIES = ["Agartala", "London", "New York", "Delhi", "Mumbai", "Chennai"]
