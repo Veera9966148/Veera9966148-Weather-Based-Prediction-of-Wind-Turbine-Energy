@@ -18,16 +18,14 @@ def initialize_database():
             cursor = conn.cursor()
 
             cursor.execute("""
-            CREATE TABLE IF NOT EXISTS
-            prediction_history(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                city TEXT,
-                theoretical_power REAL,
-                wind_speed REAL,
-                predicted_power REAL,
-                created_at TIMESTAMP
-                DEFAULT CURRENT_TIMESTAMP
-            )
+            CREATE TABLE IF NOT EXISTS predictions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    city TEXT NOT NULL,
+    theoretical_power REAL NOT NULL,
+    wind_speed REAL NOT NULL,
+    predicted_power REAL NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+            );
             """)
 
             conn.commit()
