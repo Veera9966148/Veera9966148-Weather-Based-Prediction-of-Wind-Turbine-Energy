@@ -1,24 +1,62 @@
 import requests
+from flask import current_app
+from utils.logger import logger
 
 
-def get_weather(city, api_key):
-    url = (
-        f"https://api.openweathermap.org/data/2.5/weather"
-        f"?q={city}&appid={api_key}&units=metric"
-    )
+def get_weather_by_city(city):
 
-    response = requests.get(url, timeout=10)
+    try:
 
-    if response.status_code != 200:
-        return None
+        key = current_app.config[
+            "OPENWEATHER_API_KEY"
+        ]
 
-    data = response.json()
+        url = (
+            "https://api.openweathermap.org/"
+            "data/2.5/weather"
+        )
 
-    return {
-        "city": city,
-        "temperature": data["main"]["temp"],
-        "humidity": data["main"]["humidity"],
-        "pressure": data["main"]["pressure"],
-        "wind_speed": data["wind"]["speed"],
-        "wind_direction": data["wind"].get("deg", 0)
-    }
+        params = {
+            "q": city,
+            "appid": key,
+            "units": "metric"
+        }
+
+        response = requests.get(
+            url,
+            params=params,
+            timeout=10
+        )
+
+        data = response.json()
+
+        if response.status_code != 200:
+
+            return {
+                "success": False,
+                "message":
+                "Invalid city"
+            }
+
+        return {
+            "success": True,
+            "city": data["name"],
+            "temperature":
+            data["main"]["temp"],
+            "humidity":
+            data["main"]["humidity"],
+            "wind_speed":
+            data["wind"]["speed"],
+            "description":
+            data["weather"][0]["description"]
+        }
+
+    except Exception as e:
+
+        logger.error(str(e))
+
+        return {
+            "success": False,
+            "message":
+            "Weather service unavailable"
+        }
