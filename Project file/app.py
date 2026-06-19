@@ -1,106 +1,70 @@
-from flask import Flask, render_template, request, jsonify
-from config import Config
-from database.db import init_db
-from services.weather_service import get_weather
-from services.prediction_service import predict_power
+from flask import Flask
 
-app = Flask(
-    __name__,
-    static_folder="static",
-    template_folder="templates"
+from config import (
+    DevelopmentConfig
 )
 
-app.config.from_object(Config)
+from database.db import (
+    initialize_database
+)
 
-# Initialize Database
-init_db()
+from routes.main_routes import (
+    main_bp
+)
+
+from routes.prediction_routes import (
+    prediction_bp
+)
+
+from routes.api_routes import (
+    api_bp
+)
 
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+def create_app():
 
+    app = Flask(__name__)
 
-@app.route("/dashboard")
-def dashboard():
-    return render_template(
-        "dashboard.html",
-        temperature=27,
-        humidity=65,
-        wind_speed=8.2,
-        prediction=1520
+    app.config.from_object(
+        DevelopmentConfig
     )
 
-
-@app.route("/predict", methods=["GET", "POST"])
-def predict():
-
-    weather = None
-    prediction = None
-
-    if request.method == "POST":
-
-        city = request.form.get("city")
-        theoretical = request.form.get("theoretical_power")
-        wind_speed = request.form.get("wind_speed")
-
-        # Get Weather
-        if city:
-            weather = get_weather(
-                city,
-                app.config["OPENWEATHER_API_KEY"]
-            )
-
-        # Predict Power
-        if theoretical and wind_speed:
-            try:
-                prediction = predict_power(
-                    float(theoretical),
-                    float(wind_speed)
-                )
-            except ValueError:
-                prediction = "Invalid Input"
-
-    return render_template(
-        "predict.html",
-        weather=weather,
-        prediction=prediction
+    app.register_blueprint(
+        main_bp
     )
 
+    app.register_blueprint(
+        prediction_bp
+    )
 
-@app.route("/api/predict", methods=["POST"])
-def api_predict():
+    app.register_blueprint(
+        api_bp
+    )
 
-    data = request.get_json()
+    with app.app_context():
+        initialize_database()
 
-    try:
-        result = predict_power(
-            float(data["theoretical_power"]),
-            float(data["wind_speed"])
-        )
+    @app.errorhandler(404)
+    def not_found(error):
 
-        return jsonify({
-            "success": True,
-            "predicted_power": result
-        })
-
-    except Exception as e:
-        return jsonify({
+        return {
             "success": False,
-            "error": str(e)
-        })
+            "message":
+            "Page not found"
+        }, 404
 
+    @app.errorhandler(500)
+    def server_error(error):
 
-@app.route("/health")
-def health():
-    return jsonify({
-        "status": "healthy"
-    })
+        return {
+            "success": False,
+            "message":
+            "Internal server error"
+        }, 500
+
+    return app
 
 
 if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=5000,
-        debug=True
-    )
+    app = create_app()
+    app.run()
