@@ -1,5 +1,36 @@
-venv/
+# Environment
+.env
+
+# Python
 __pycache__/
 *.pyc
-.env
-database/predictions.db
+*.pyo
+*.pyd
+
+# Database
+instance/*.db
+
+# Logs
+logs/*.log
+
+# Virtual Environment
+venv/
+.env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
