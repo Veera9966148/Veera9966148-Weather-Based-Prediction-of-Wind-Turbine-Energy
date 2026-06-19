@@ -13,7 +13,7 @@ from routes.main_routes import (
 )
 
 from database.db import (
-    init_db
+    initialize_database
 )
 
 app = Flask(
@@ -22,8 +22,9 @@ app = Flask(
     static_folder="static"
 )
 
-# Initialize database
-init_db()
+# Database initialize
+with app.app_context():
+    initialize_database()
 
 # Register Blueprints
 app.register_blueprint(
@@ -63,10 +64,8 @@ def health():
 @app.route("/api")
 def api():
     return jsonify({
-        "application":
-            "WindAI Analytics",
-        "status":
-            "Running"
+        "application": "WindAI Analytics",
+        "status": "Running"
     })
 
 
@@ -85,8 +84,7 @@ def page_not_found(error):
 def internal_server_error(error):
     return jsonify({
         "success": False,
-        "message":
-            "Internal Server Error"
+        "message": "Internal Server Error"
     }), 500
 
 
