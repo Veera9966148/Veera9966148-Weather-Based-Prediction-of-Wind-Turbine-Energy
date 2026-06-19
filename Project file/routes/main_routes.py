@@ -4,6 +4,12 @@ from flask import (
     jsonify
 )
 
+from database.db import (
+    get_total_predictions,
+    get_average_prediction,
+    get_prediction_history
+)
+
 main_bp = Blueprint(
     "main",
     __name__
@@ -37,3 +43,18 @@ def health():
         "database":
         "connected"
     })
+
+
+@main_bp.route("/dashboard")
+def dashboard():
+
+    total_predictions = get_total_predictions()
+    average_prediction = get_average_prediction()
+    prediction_history = get_prediction_history()
+
+    return render_template(
+        "dashboard.html",
+        total_predictions=total_predictions,
+        average_prediction=average_prediction,
+        prediction_history=prediction_history
+    )
