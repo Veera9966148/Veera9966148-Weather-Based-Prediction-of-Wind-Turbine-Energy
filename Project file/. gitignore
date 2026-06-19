@@ -1,9 +1,5 @@
 venv/
-.env
 __pycache__/
 *.pyc
-*.pkl
-*.sav
-*.db
-instance/
-.ipynb_checkpoints/
+.env
+database/predictions.db
