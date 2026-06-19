@@ -1,10 +1,27 @@
 import os
-from pathlib import Path
+from dotenv import load_dotenv
 
-BASE_DIR = Path(__file__).resolve().parent
+load_dotenv()
+
 
 class Config:
-    SECRET_KEY = os.getenv("SECRET_KEY", "windai-secret")
+    SECRET_KEY = os.getenv("SECRET_KEY")
     OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
-    DATABASE_PATH = BASE_DIR / "database" / "predictions.db"
-    MODEL_PATH = BASE_DIR / "models" / "power_prediction.pkl"
+    DATABASE_PATH = os.getenv(
+        "DATABASE_PATH",
+        "instance/windai.db"
+    )
+    DEBUG = os.getenv("DEBUG", "False") == "True"
+
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+
+
+class ProductionConfig(Config):
+    DEBUG = False
+
+
+class TestingConfig(Config):
+    TESTING = True
+    DEBUG = True
