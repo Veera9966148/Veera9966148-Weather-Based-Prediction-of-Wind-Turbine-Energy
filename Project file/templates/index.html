@@ -1,20 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>WindAI Analytics</title>
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
+{% extends 'base.html' %}
 
-<div class="hero">
-    <h1>🌍 WindAI Analytics</h1>
-    <p>AI-Powered Wind Turbine Energy Prediction Platform</p>
+{% block content %}
 
-    <a href="/predict" class="btn">
-        Start Prediction
-    </a>
+<section class="hero">
+
+<h1>
+Wind Energy Prediction System
+</h1>
+
+<p>
+Predict renewable energy generation
+using AI and weather intelligence.
+</p>
+
+<div class="buttons">
+
+<a href="/predict"
+class="btn">
+Start Prediction
+</a>
+
+<a href="/dashboard"
+class="btn secondary">
+View Dashboard
+</a>
+
 </div>
 
-</body>
-</html>
+</section>
+
+<section class="features">
+
+<div class="card">
+🤖
+<h3>AI Prediction</h3>
+<p>
+Machine Learning powered predictions
+</p>
+</div>
+
+<div class="card">
+🌦️
+<h3>Weather Analytics</h3>
+<p>
+Live weather information
+</p>
+</div>
+
+<div class="card">
+📊
+<h3>Historical Insights</h3>
+<p>
+Track prediction history
+</p>
+</div>
+
+<div class="card">
+📈
+<h3>Dashboard</h3>
+<p>
+Interactive visual analytics
+</p>
+</div>
+
+</section>
+
+{% endblock %}
