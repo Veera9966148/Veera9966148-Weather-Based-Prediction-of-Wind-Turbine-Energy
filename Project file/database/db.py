@@ -4,9 +4,11 @@ from utils.logger import logger
 
 
 def get_connection():
-    return sqlite3.connect(
+    conn = sqlite3.connect(
         current_app.config["DATABASE_PATH"]
     )
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
 def initialize_database():
@@ -22,7 +24,7 @@ def initialize_database():
                     wind_speed REAL NOT NULL,
                     predicted_power REAL NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
+                )
             """)
 
             conn.commit()
@@ -38,10 +40,12 @@ def get_total_predictions():
             cursor = conn.cursor()
 
             cursor.execute(
-                "SELECT COUNT(*) FROM predictions"
+                "SELECT COUNT(*) AS total FROM predictions"
             )
 
-            return cursor.fetchone()[0]
+            result = cursor.fetchone()
+
+            return result["total"]
 
     except Exception as e:
         logger.error(str(e))
@@ -53,13 +57,20 @@ def get_average_prediction():
         with get_connection() as conn:
             cursor = conn.cursor()
 
-            cursor.execute(
-                "SELECT AVG(predicted_power) FROM predictions"
+            cursor.execute("""
+                SELECT AVG(predicted_power) AS average_power
+                FROM predictions
+            """)
+
+            result = cursor.fetchone()
+
+            if result["average_power"] is None:
+                return 0
+
+            return round(
+                result["average_power"],
+                2
             )
-
-            result = cursor.fetchone()[0]
-
-            return round(result or 0, 2)
 
     except Exception as e:
         logger.error(str(e))
@@ -82,7 +93,12 @@ def get_prediction_history():
                 ORDER BY created_at DESC
             """)
 
-            return cursor.fetchall()
+            rows = cursor.fetchall()
+
+            return [
+                dict(row)
+                for row in rows
+            ]
 
     except Exception as e:
         logger.error(str(e))
@@ -99,8 +115,7 @@ def insert_prediction(
         with get_connection() as conn:
             cursor = conn.cursor()
 
-            cursor.execute(
-                """
+            cursor.execute("""
                 INSERT INTO predictions (
                     city,
                     theoretical_power,
@@ -108,16 +123,18 @@ def insert_prediction(
                     predicted_power
                 )
                 VALUES (?, ?, ?, ?)
-                """,
-                (
-                    city,
-                    theoretical_power,
-                    wind_speed,
-                    predicted_power
-                )
-            )
+            """,
+            (
+                city,
+                theoretical_power,
+                wind_speed,
+                predicted_power
+            ))
 
             conn.commit()
+            logger.info(
+                f"Prediction saved for {city}"
+            )
 
     except Exception as e:
         logger.error(str(e))
