@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="stats">
+
+<div class="card">
+<h3>Total Predictions</h3>
+<h1>126</h1>
+</div>
+
+<div class="card">
+<h3>Average Power</h3>
+<h1>982</h1>
+</div>
+
+<div class="card">
+<h3>Highest Prediction</h3>
+<h1>1600</h1>
+</div>
+
+<div class="card">
+<h3>Latest Prediction</h3>
+<h1>1248</h1>
+</div>
+
+</div>
+
+<div class="glass">
+
+<h3>
+Prediction History
+</h3>
+
+<canvas
+id="historyChart">
+</canvas>
+
+</div>
+
+<div class="glass">
+
+<h3>
+Wind Speed vs Power
+</h3>
+
+<canvas
+id="windChart">
+</canvas>
+
+</div>
+
+{% endblock %}
