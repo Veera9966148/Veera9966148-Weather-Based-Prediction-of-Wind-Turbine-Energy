@@ -1,4 +1,8 @@
-from flask import Blueprint
+from flask import (
+    Blueprint,
+    render_template,
+    jsonify
+)
 
 main_bp = Blueprint(
     "main",
@@ -8,23 +12,28 @@ main_bp = Blueprint(
 
 @main_bp.route("/")
 def home():
+    return render_template(
+        "index.html"
+    )
 
-    return {
+
+@main_bp.route("/api")
+def api_home():
+    return jsonify({
         "application":
         "WindAI Analytics",
         "status":
         "Running"
-    }
+    })
 
 
 @main_bp.route("/health")
 def health():
-
-    return {
+    return jsonify({
         "status":
         "healthy",
         "model_loaded":
         True,
         "database":
         "connected"
-    }
+    })
