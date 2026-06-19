@@ -1,34 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Prediction</title>
+    <title>Wind Energy Prediction</title>
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<div class="card">
+<div class="container">
+    <h1>🌍 Wind Energy Prediction</h1>
 
-<h1>Wind Energy Prediction</h1>
+    <form method="POST">
 
-<form method="POST">
+        <input
+            type="text"
+            name="city"
+            placeholder="Enter City">
 
-<input type="text"
-       name="city"
-       placeholder="Enter City"
-       required>
+        <input
+            type="number"
+            step="0.01"
+            name="theoretical_power"
+            placeholder="Theoretical Power (kWh)"
+            required>
 
-<button type="submit">
-Predict
-</button>
+        <input
+            type="number"
+            step="0.01"
+            name="wind_speed"
+            placeholder="Wind Speed (m/s)"
+            required>
 
-</form>
+        <button type="submit">
+            Predict
+        </button>
 
-{% if prediction %}
-<div class="result">
-    <h2>{{ prediction }}</h2>
-</div>
-{% endif %}
+    </form>
+
+    {% if weather %}
+    <div class="result">
+        <h3>Weather Information</h3>
+        <p>City: {{ weather.city }}</p>
+        <p>Temperature: {{ weather.temperature }} °C</p>
+        <p>Humidity: {{ weather.humidity }}%</p>
+    </div>
+    {% endif %}
+
+    {% if prediction %}
+    <div class="result">
+        <h2>
+            Predicted Power:
+            {{ prediction }} kW
+        </h2>
+    </div>
+    {% endif %}
 
 </div>
 
