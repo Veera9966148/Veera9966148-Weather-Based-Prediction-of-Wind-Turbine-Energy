@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  windai:
+    build: .
+    container_name: windai_app
+
+    ports:
+      - "10000:10000"
+
+    env_file:
+      - .env
+
+    volumes:
+      - .:/app
+
+    restart: unless-stopped
