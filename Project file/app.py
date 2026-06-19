@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from config import Config
-from database import init_db
+from database.db import init_db
 from services.weather_service import get_weather
 from services.prediction_service import predict_power
 
