@@ -1,76 +1,99 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WindAI Prediction</title>
+</head>
+<body>
 
-{% block content %}
+    <h1>WindAI Prediction</h1>
 
-<div class="glass">
+    <form id="predictForm">
 
-<h2>
-Wind Energy Prediction
-</h2>
+        <input
+            type="text"
+            id="city"
+            placeholder="City"
+            required
+        >
+        <br><br>
 
-<form id="predictionForm">
+        <input
+            type="number"
+            id="theoretical_power"
+            placeholder="Theoretical Power"
+            required
+        >
+        <br><br>
 
-<input
-type="text"
-id="city"
-placeholder="City"
-required>
+        <input
+            type="number"
+            step="0.1"
+            id="wind_speed"
+            placeholder="Wind Speed"
+            required
+        >
+        <br><br>
 
-<input
-type="number"
-id="power"
-placeholder="Theoretical Power"
-required>
+        <button type="submit">
+            Predict
+        </button>
 
-<input
-type="number"
-id="wind"
-placeholder="Wind Speed"
-required>
+    </form>
 
-<button type="submit">
-Predict
-</button>
+    <h3 id="result"></h3>
 
-</form>
+    <script>
+        document
+            .getElementById(
+                "predictForm"
+            )
+            .addEventListener(
+                "submit",
+                async function (e) {
 
-<div
-id="loading"
-class="hidden">
+                    e.preventDefault();
 
-<div class="spinner"></div>
+                    const response =
+                        await fetch(
+                            "/predict",
+                            {
+                                method:
+                                    "POST",
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+                                body:
+                                    JSON.stringify({
+                                        city:
+                                            document.getElementById(
+                                                "city"
+                                            ).value,
 
-</div>
+                                        theoretical_power:
+                                            document.getElementById(
+                                                "theoretical_power"
+                                            ).value,
 
-</div>
+                                        wind_speed:
+                                            document.getElementById(
+                                                "wind_speed"
+                                            ).value
+                                    })
+                            }
+                        );
 
-<div
-id="resultCard"
-class="glass hidden">
+                    const data =
+                        await response.json();
 
-<h3>
-Predicted Energy
-</h3>
+                    document.getElementById(
+                        "result"
+                    ).innerHTML =
+                        "Predicted Power: " +
+                        data.prediction;
+                }
+            );
+    </script>
 
-<h1 id="predictionValue">
-0
-</h1>
-
-<p>kWh</p>
-
-</div>
-
-<div
-id="weatherCard"
-class="glass hidden">
-
-<h3>Weather</h3>
-
-<p id="temp"></p>
-<p id="humidity"></p>
-<p id="description"></p>
-<p id="windspeed"></p>
-
-</div>
-
-{% endblock %}
+</body>
+</html>
