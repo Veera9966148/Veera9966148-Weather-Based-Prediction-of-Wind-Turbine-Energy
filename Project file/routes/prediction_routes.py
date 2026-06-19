@@ -1,7 +1,8 @@
 from flask import (
     Blueprint,
     request,
-    jsonify
+    jsonify,
+    render_template
 )
 
 from services.prediction_service import (
@@ -20,36 +21,65 @@ prediction_bp = Blueprint(
 
 @prediction_bp.route(
     "/predict",
-    methods=["POST"]
+    methods=["GET", "POST"]
 )
 def predict():
 
-    data = request.get_json()
-
-    city = data.get("city")
-    theoretical_power = float(
-        data.get("theoretical_power")
-    )
-
-    wind_speed = float(
-        data.get("wind_speed")
-    )
-
-    result = (
-        PredictionService
-        .predict_power(
-            theoretical_power,
-            wind_speed
-        )
-    )
-
-    if result["success"]:
-
-        insert_prediction(
-            city,
-            theoretical_power,
-            wind_speed,
-            result["prediction"]
+    if request.method == "GET":
+        return render_template(
+            "predict.html"
         )
 
-    return jsonify(result)
+    try:
+        data = request.get_json()
+
+        city = data.get(
+            "city",
+            ""
+        )
+
+        theoretical_power = float(
+            data.get(
+                "theoretical_power",
+                0
+            )
+        )
+
+        wind_speed = float(
+            data.get(
+                "wind_speed",
+                0
+            )
+        )
+
+        result = (
+            PredictionService
+            .predict_power(
+                theoretical_power,
+                wind_speed
+            )
+        )
+
+        if result.get(
+            "success"
+        ):
+            insert_prediction(
+                city,
+                theoretical_power,
+                wind_speed,
+                result.get(
+                    "prediction"
+                )
+            )
+
+        return jsonify(
+            result
+        )
+
+    except Exception as e:
+        return jsonify({
+            "success":
+            False,
+            "message":
+            str(e)
+        }), 500
