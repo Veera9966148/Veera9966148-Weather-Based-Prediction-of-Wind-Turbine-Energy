@@ -8,8 +8,8 @@ from routes.prediction_routes import (
     prediction_bp
 )
 
-from routes.dashboard_routes import (
-    dashboard_bp
+from routes.main_routes import (
+    main_bp
 )
 
 from database.db import (
@@ -31,7 +31,7 @@ app.register_blueprint(
 )
 
 app.register_blueprint(
-    dashboard_bp
+    main_bp
 )
 
 
