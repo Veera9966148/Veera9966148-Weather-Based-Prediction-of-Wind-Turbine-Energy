@@ -1,53 +1,38 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WindAI Dashboard</title>
+</head>
+<body>
 
-{% block content %}
+<h1>WindAI Analytics Dashboard</h1>
 
-<div class="stats">
+<h2>Total Predictions: {{ total_predictions }}</h2>
 
-<div class="card">
-<h3>Total Predictions</h3>
-<h1>126</h1>
-</div>
+<h2>Average Predicted Power: {{ average_prediction }}</h2>
 
-<div class="card">
-<h3>Average Power</h3>
-<h1>982</h1>
-</div>
+<h2>Prediction History</h2>
 
-<div class="card">
-<h3>Highest Prediction</h3>
-<h1>1600</h1>
-</div>
+<table border="1">
+    <tr>
+        <th>City</th>
+        <th>Theoretical Power</th>
+        <th>Wind Speed</th>
+        <th>Predicted Power</th>
+        <th>Date</th>
+    </tr>
 
-<div class="card">
-<h3>Latest Prediction</h3>
-<h1>1248</h1>
-</div>
+    {% for item in prediction_history %}
+    <tr>
+        <td>{{ item["city"] }}</td>
+        <td>{{ item["theoretical_power"] }}</td>
+        <td>{{ item["wind_speed"] }}</td>
+        <td>{{ item["predicted_power"] }}</td>
+        <td>{{ item["created_at"] }}</td>
+    </tr>
+    {% endfor %}
 
-</div>
+</table>
 
-<div class="glass">
-
-<h3>
-Prediction History
-</h3>
-
-<canvas
-id="historyChart">
-</canvas>
-
-</div>
-
-<div class="glass">
-
-<h3>
-Wind Speed vs Power
-</h3>
-
-<canvas
-id="windChart">
-</canvas>
-
-</div>
-
-{% endblock %}
+</body>
+</html>
