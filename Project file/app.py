@@ -1,22 +1,35 @@
-from flask import Flask
-from flask import render_template
-from flask import request
-from flask import jsonify
-
+from flask import Flask, render_template, request, jsonify
 from config import Config
 from database.db import init_db
 from services.weather_service import get_weather
 from services.prediction_service import predict_power
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder="static",
+    template_folder="templates"
+)
+
 app.config.from_object(Config)
 
+# Initialize Database
 init_db()
 
 
 @app.route("/")
 def home():
     return render_template("index.html")
+
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template(
+        "dashboard.html",
+        temperature=27,
+        humidity=65,
+        wind_speed=8.2,
+        prediction=1520
+    )
 
 
 @app.route("/predict", methods=["GET", "POST"])
@@ -28,31 +41,28 @@ def predict():
     if request.method == "POST":
 
         city = request.form.get("city")
-        theoretical = request.form.get(
-            "theoretical_power"
-        )
-        wind_speed = request.form.get(
-            "wind_speed"
-        )
+        theoretical = request.form.get("theoretical_power")
+        wind_speed = request.form.get("wind_speed")
 
+        # Get Weather
         if city:
             weather = get_weather(
                 city,
                 app.config["OPENWEATHER_API_KEY"]
             )
 
+        # Predict Power
         if theoretical and wind_speed:
             try:
                 prediction = predict_power(
                     float(theoretical),
                     float(wind_speed)
                 )
-
             except ValueError:
                 prediction = "Invalid Input"
 
     return render_template(
-        "dashboard.html",
+        "predict.html",
         weather=weather,
         prediction=prediction
     )
@@ -61,17 +71,36 @@ def predict():
 @app.route("/api/predict", methods=["POST"])
 def api_predict():
 
-    data = request.json
+    data = request.get_json()
 
-    result = predict_power(
-        data["theoretical_power"],
-        data["wind_speed"]
-    )
+    try:
+        result = predict_power(
+            float(data["theoretical_power"]),
+            float(data["wind_speed"])
+        )
 
+        return jsonify({
+            "success": True,
+            "predicted_power": result
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
+
+@app.route("/health")
+def health():
     return jsonify({
-        "predicted_power": result
+        "status": "healthy"
     })
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wind Energy Prediction</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1>🌍 Wind Energy Prediction</h1>
+
+        <form method="POST">
+            <input type="text"
+                   name="city"
+                   placeholder="Enter City">
+
+            <input type="number"
+                   step="0.01"
+                   name="theoretical_power"
+                   placeholder="Theoretical Power (kWh)"
+                   required>
+
+            <input type="number"
+                   step="0.01"
+                   name="wind_speed"
+                   placeholder="Wind Speed (m/s)"
+                   required>
+
+            <button type="submit">
+                Predict Energy
+            </button>
+        </form>
+
+        {% if prediction %}
+        <div class="result-card">
+            <h2>⚡ Predicted Power</h2>
+            <h1>{{ prediction }} kW</h1>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+</body>
+</html>
