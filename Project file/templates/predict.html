@@ -1,99 +1,114 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>WindAI Prediction</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-    <h1>WindAI Prediction</h1>
+{% block content %}
 
-    <form id="predictForm">
+<div class="row justify-content-center">
 
-        <input
-            type="text"
-            id="city"
-            placeholder="City"
-            required
-        >
-        <br><br>
+    <div class="col-md-7 col-lg-5">
 
-        <input
-            type="number"
-            id="theoretical_power"
-            placeholder="Theoretical Power"
-            required
-        >
-        <br><br>
+        <div class="card shadow-lg border-0">
 
-        <input
-            type="number"
-            step="0.1"
-            id="wind_speed"
-            placeholder="Wind Speed"
-            required
-        >
-        <br><br>
+            <div class="card-body p-4">
 
-        <button type="submit">
-            Predict
-        </button>
+                <h2 class="text-center mb-4">
+                    🌬️ WindAI Prediction
+                </h2>
 
-    </form>
+                <form method="POST">
 
-    <h3 id="result"></h3>
+                    <div class="mb-3">
+                        <label class="form-label">
+                            City
+                        </label>
 
-    <script>
-        document
-            .getElementById(
-                "predictForm"
-            )
-            .addEventListener(
-                "submit",
-                async function (e) {
+                        <input
+                            type="text"
+                            name="city"
+                            class="form-control"
+                            placeholder="Enter City"
+                            required
+                        >
+                    </div>
 
-                    e.preventDefault();
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Theoretical Power
+                        </label>
 
-                    const response =
-                        await fetch(
-                            "/predict",
-                            {
-                                method:
-                                    "POST",
-                                headers: {
-                                    "Content-Type":
-                                        "application/json"
-                                },
-                                body:
-                                    JSON.stringify({
-                                        city:
-                                            document.getElementById(
-                                                "city"
-                                            ).value,
+                        <input
+                            type="number"
+                            step="0.01"
+                            name="theoretical_power"
+                            class="form-control"
+                            placeholder="Enter Theoretical Power"
+                            required
+                        >
+                    </div>
 
-                                        theoretical_power:
-                                            document.getElementById(
-                                                "theoretical_power"
-                                            ).value,
+                    <div class="mb-4">
+                        <label class="form-label">
+                            Wind Speed
+                        </label>
 
-                                        wind_speed:
-                                            document.getElementById(
-                                                "wind_speed"
-                                            ).value
-                                    })
-                            }
-                        );
+                        <input
+                            type="number"
+                            step="0.01"
+                            name="wind_speed"
+                            class="form-control"
+                            placeholder="Enter Wind Speed"
+                            required
+                        >
+                    </div>
 
-                    const data =
-                        await response.json();
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100"
+                    >
+                        Predict Power
+                    </button>
 
-                    document.getElementById(
-                        "result"
-                    ).innerHTML =
-                        "Predicted Power: " +
-                        data.prediction;
-                }
-            );
-    </script>
+                </form>
 
-</body>
-</html>
+                {% if prediction %}
+
+                <div
+                    class="alert alert-success text-center mt-4"
+                >
+                    <h5>
+                        Predicted Power
+                    </h5>
+
+                    <h2>
+                        {{ prediction }}
+                    </h2>
+                </div>
+
+                <div class="text-center">
+
+                    <a
+                        href="/dashboard"
+                        class="btn btn-success"
+                    >
+                        View Dashboard
+                    </a>
+
+                    <a
+                        href="/predict"
+                        class="btn btn-secondary"
+                    >
+                        New Prediction
+                    </a>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
