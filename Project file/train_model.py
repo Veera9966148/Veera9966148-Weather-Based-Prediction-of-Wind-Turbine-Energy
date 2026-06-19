@@ -1,53 +1,65 @@
-# Import Libraries
-import numpy as np
 import pandas as pd
 import joblib
-import matplotlib.pyplot as plt
+from pathlib import Path
 
-# Load Dataset
-df = pd.read_csv("data/T1.csv")
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import (
+    r2_score,
+    mean_absolute_error,
+    mean_squared_error
+)
 
-# Rename columns properly
+BASE_DIR = Path(__file__).resolve().parent
+
+df = pd.read_csv(BASE_DIR / "Data" / "T1.csv")
+
 df.rename(columns={
-    'Date/Time': 'Time',
-    'LV ActivePower (kW)': 'ActivePower',
-    'Wind Speed (m/s)': 'WindSpeed',
-    'Theoretical_Power_Curve (KWh)': 'TheoreticalPower'
+    "Date/Time": "Time",
+    "LV ActivePower (kW)": "ActivePower",
+    "Wind Speed (m/s)": "WindSpeed",
+    "Theoretical_Power_Curve (KWh)": "TheoreticalPower"
 }, inplace=True)
 
-# Drop unnecessary columns
-df.drop(['Wind Direction (°)', 'Time'], axis=1, inplace=True)
+df.drop(
+    ["Wind Direction (°)", "Time"],
+    axis=1,
+    inplace=True
+)
 
-# Remove null values
-df = df.dropna()
+df.dropna(inplace=True)
 
-# Define Features and Target
-X = df[['TheoreticalPower', 'WindSpeed']]
-y = df['ActivePower']
+X = df[["TheoreticalPower", "WindSpeed"]]
+y = df["ActivePower"]
 
-# Split Data
-from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42
+)
 
-# Train Model
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import r2_score
+model = RandomForestRegressor(
+    n_estimators=300,
+    random_state=42
+)
 
-model = RandomForestRegressor(n_estimators=200, random_state=0)
 model.fit(X_train, y_train)
 
-# Evaluate Model
 y_pred = model.predict(X_test)
 
-print("R2 Score:", r2_score(y_test, y_pred))
+print("R2:", r2_score(y_test, y_pred))
+print("MAE:", mean_absolute_error(y_test, y_pred))
+print("RMSE:", mean_squared_error(
+    y_test,
+    y_pred
+) ** 0.5)
 
-# 📊 Plot Graph (AFTER prediction)
-plt.scatter(y_test, y_pred)
-plt.xlabel("Actual Power")
-plt.ylabel("Predicted Power")
-plt.title("Actual vs Predicted Power Output")
-plt.show()
+Path("models").mkdir(exist_ok=True)
 
-# Save Model
-joblib.dump(model, "power_prediction.sav")
-print("Model Saved Successfully!")
+joblib.dump(
+    model,
+    "models/power_prediction.pkl"
+)
+
+print("Model Saved Successfully")

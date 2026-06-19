@@ -1,94 +1,76 @@
-from flask import Flask, render_template, request
-import joblib
-import pandas as pd
-import requests
+from flask import Flask
+from flask import render_template
+from flask import request
+from flask import jsonify
+
+from config import Config
+from database.db import init_db
+from services.weather_service import get_weather
+from services.prediction_service import predict_power
 
 app = Flask(__name__)
+app.config.from_object(Config)
 
-# Load trained ML model
-model = joblib.load("power_prediction.sav")
+init_db()
 
-# 🔑 Replace this with your real OpenWeather API key
-API_KEY = "4c164f075e1fa39e5d3b21cf11fcdfc6"
-
-# Dropdown cities
-CITIES = ["Agartala", "London", "New York", "Delhi", "Mumbai", "Chennai"]
 
 @app.route("/")
 def home():
-    return render_template("intro.html")
+    return render_template("index.html")
 
 
 @app.route("/predict", methods=["GET", "POST"])
 def predict():
 
-    weather_data = None
+    weather = None
     prediction = None
 
     if request.method == "POST":
 
-        # ---------------- WEATHER SECTION ----------------
-        if "city" in request.form:
-            city = request.form.get("city")
+        city = request.form.get("city")
+        theoretical = request.form.get(
+            "theoretical_power"
+        )
+        wind_speed = request.form.get(
+            "wind_speed"
+        )
 
-            if city:
-                url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
-                
-                try:
-                    response = requests.get(url)
-                    data = response.json()
+        if city:
+            weather = get_weather(
+                city,
+                app.config["OPENWEATHER_API_KEY"]
+            )
 
-                    print("API RESPONSE:", data)  # Debug line
-
-                    if response.status_code == 200 and "main" in data:
-                        weather_data = {
-                            "city": city,
-                            "temperature": round(data["main"]["temp"], 2),
-                            "humidity": data["main"]["humidity"],
-                            "pressure": data["main"]["pressure"],
-                            "wind_speed": data["wind"]["speed"]
-                        }
-                    else:
-                        weather_data = {
-                            "city": city,
-                            "temperature": "Error",
-                            "humidity": "-",
-                            "pressure": "-",
-                            "wind_speed": "-"
-                        }
-
-                except Exception as e:
-                    print("ERROR:", e)
-                    weather_data = {
-                        "city": city,
-                        "temperature": "API Error",
-                        "humidity": "-",
-                        "pressure": "-",
-                        "wind_speed": "-"
-                    }
-
-        # ---------------- PREDICTION SECTION ----------------
-        if "theoretical_power" in request.form:
+        if theoretical and wind_speed:
             try:
-                theoretical_power = float(request.form.get("theoretical_power"))
-                wind_speed = float(request.form.get("wind_speed"))
-
-                input_data = pd.DataFrame(
-                    [[theoretical_power, wind_speed]],
-                    columns=["TheoreticalPower", "WindSpeed"]
+                prediction = predict_power(
+                    float(theoretical),
+                    float(wind_speed)
                 )
 
-                prediction = round(model.predict(input_data)[0], 2)
-
-            except:
+            except ValueError:
                 prediction = "Invalid Input"
 
     return render_template(
-        "predict.html",
-        cities=CITIES,
-        weather_data=weather_data,
+        "dashboard.html",
+        weather=weather,
         prediction=prediction
     )
+
+
+@app.route("/api/predict", methods=["POST"])
+def api_predict():
+
+    data = request.json
+
+    result = predict_power(
+        data["theoretical_power"],
+        data["wind_speed"]
+    )
+
+    return jsonify({
+        "predicted_power": result
+    })
 
 
 if __name__ == "__main__":
