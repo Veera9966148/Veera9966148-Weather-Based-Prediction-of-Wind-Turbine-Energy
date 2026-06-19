@@ -4,7 +4,7 @@ from flask import (
 )
 
 from database.db import (
-    get_history
+    get_prediction_history
 )
 
 api_bp = Blueprint(
@@ -15,7 +15,9 @@ api_bp = Blueprint(
 
 @api_bp.route("/history")
 def history():
+    history_data = get_prediction_history()
 
-    return jsonify(
-        get_history()
-    )
+    return jsonify([
+        dict(row)
+        for row in history_data
+    ])
